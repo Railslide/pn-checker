@@ -1,3 +1,4 @@
+import argparse
 import datetime
 import re
 
@@ -61,3 +62,22 @@ class PNValidityChecker:
                     digit = digit - 9
             total_sum += digit
         return (10 - (total_sum % 10)) % 10
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Checks identity number validity")
+    parser.add_argument(
+        'identity_numbers',
+        metavar='N',
+        type=str,
+        nargs='+',
+        help ="A list of identity numbers to be checked"
+    )
+    args = parser.parse_args()
+    checker = PNValidityChecker()
+    for number in args.identity_numbers:
+        checker.verify(number)
+
+
+if __name__ == "__main__":
+    main()
