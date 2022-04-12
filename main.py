@@ -1,3 +1,4 @@
+import datetime
 import re
 
 
@@ -20,10 +21,35 @@ class PNValidityChecker:
 
         digits_only = identity_number.replace("-", "").replace("+", "")
         ten_digits_number = digits_only[-10:]
-
         control_digit = int(ten_digits_number[-1])
         if control_digit != self._calculate_control_digit(ten_digits_number):
             raise ValueError("Invalid identity number")
+
+        # This only work for humans @TODO
+        if not self._check_is_valid_date_of_birth(identity_number, digits_only):
+            raise ValueError("Invalid date of birth")
+
+    def _check_is_valid_date_of_birth(self, identity_number, digits_only):
+        # Slicing from the end of the string, so that it works for both 10 and 12 digits numbers
+        month = int(digits_only[-4:-2])
+        day = int(digits_only[-2:])
+        year = int(digits_only[:-4])
+
+        if "+" in identity_number:
+            try:
+                # Picking January 1 as we know for sut that it exists even if it's a leap year.
+                # This is to avoid the corner case of 100+ year person born on February 29
+                dummy_date = datetime.date(year, 1, 1)
+                dummy_date.replace(year=dummy_date-100, month=month, day=day)
+                return True
+            except ValueError:
+                return False
+        try:
+            datetime.date(year=year, month=month, day=day)
+        except ValueError:
+            return False
+
+        return True
 
     def _calculate_control_digit(self, identity_number):
         total_sum = 0

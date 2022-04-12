@@ -1,6 +1,7 @@
 import unittest
 from main import PNValidityChecker
 
+
 class SubvenvTests(unittest.TestCase):
 
     @classmethod
@@ -10,7 +11,7 @@ class SubvenvTests(unittest.TestCase):
     def test_calculate_control_digit(self):
         control_digit = self.validity_checker._calculate_control_digit("8112189876")
         expected = 6
-        assert control_digit == expected, f"Expected control digit was {expected}, received was {control_digit}"
+        assert control_digit == expected, f"Expected control digit was {expected}, actual was {control_digit}"
 
     def test_valid_personnummer(self):
         valid_personnumer = (
@@ -31,5 +32,15 @@ class SubvenvTests(unittest.TestCase):
         )
 
         for pn in valid_personnumer:
-            assert self.validity_checker.verify(pn) is True, pn
+            assert self.validity_checker.verify(pn) is True, \
+                f"Validity check for {pn} failed. Expected: True, actual: False"
 
+    def test_invalid_personnumer(self):
+        invalid_numbers = (
+            "201701272394",
+            "190302299813",
+            "030229+9813"
+        )
+        for pn in invalid_numbers:
+            assert self.validity_checker.verify(pn) is False, \
+                f"Validity check for {pn} failed. Expected: False, actual: True"
