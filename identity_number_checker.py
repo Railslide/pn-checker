@@ -115,15 +115,8 @@ class IdentityNumberValidityChecker:
         try:
             if is_100_plus_short_date:
                 if date_string.endswith("0229"):
-                    # Picking January 1 as we know for sut that it exists even if it's not a leap year.
-                    # This is to avoid the corner case of 100+ year person born on February 29
-                    year = int(date_string[:2])
-                    first_day_of_year_of_birth = datetime.datetime(year=year, month=1, day=1)
-                    datetime.datetime(year=first_day_of_year_of_birth.year-100, month=2, day=29)
-                    return True
-
-                closest_date = datetime.datetime.strptime(date_string, date_fmt)
-                closest_date.replace(year=closest_date.year-100)
+                    closest_date = datetime.datetime.strptime(date_string, date_fmt)
+                    closest_date.replace(year=closest_date.year-100)
                 return True
 
             datetime.datetime.strptime(date_string, date_fmt)

@@ -1,5 +1,5 @@
 import unittest
-from identity_number_checker import IdentityNumberValidityChecker
+from identity_number_checker import IdentityNumberValidityChecker, IdentityNumberValidationError
 
 
 class IdentityNumberValidityCheckerTests(unittest.TestCase):
@@ -76,3 +76,12 @@ class IdentityNumberValidityCheckerTests(unittest.TestCase):
         for pn in invalid_numbers:
             assert self.validity_checker.verify(pn) is False, \
                 f"Validity check for {pn} failed. Expected: False, actual: True"
+
+    def test_100_plus_years_old_leap_year(self):
+        # Test for the corner case '0002209', where 0002209-XXXX is valid (date wise)
+        # but 000229+XXX is not as 2000 was a leap year but 1900 wasn't.
+        try:
+            self.validity_checker._check_is_valid_date_of_birth("000229", True)
+            assert False, "Expected exception wasn't raised"
+        except IdentityNumberValidationError:
+            assert True
