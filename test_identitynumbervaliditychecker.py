@@ -1,12 +1,12 @@
 import unittest
-from main import PNValidityChecker
+from identity_number_checker import IdentityNumberValidityChecker
 
 
-class PNValidityCheckerTests(unittest.TestCase):
+class IdentityNumberValidityCheckerTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.validity_checker = PNValidityChecker()
+        cls.validity_checker = IdentityNumberValidityChecker()
 
     def test_calculate_control_digit(self):
         control_digit = self.validity_checker._calculate_control_digit("8112189876")
@@ -14,14 +14,17 @@ class PNValidityCheckerTests(unittest.TestCase):
         assert control_digit == expected, f"Expected control digit was {expected}, actual was {control_digit}"
 
     def test_identify_number_type_person(self):
-        assert self.validity_checker._identify_number_type("20170110") == "personnummer"
+        number_type = self.validity_checker._identify_number_type("201701102384")
+        assert number_type == "personnummer", f"Expected type was personnummer, actual was {number_type}"
 
-    def test_identify_number_type_samordningnummer(self):
-        number_type = self.validity_checker._identify_number_type("19091079")
-        assert number_type == "samordningnummer", f"{number_type}"
+    def test_identify_number_type_samordningsnummer(self):
+        number_type = self.validity_checker._identify_number_type("190910799824")
+        assert number_type == "samordningsnummer", f"Expected type was samordningsnummer, actual was {number_type}"
 
     def test_identify_number_type_company(self):
-        assert self.validity_checker._identify_number_type("556614") == "company"
+        number_type = self.validity_checker._identify_number_type("5566143185")
+        assert number_type == "organisationsnummer",\
+            f"Expected type was organisationsnummer, actual was {number_type}"
 
     def test_valid_personnummer(self):
         valid_personnumer = (
@@ -57,7 +60,7 @@ class PNValidityCheckerTests(unittest.TestCase):
             assert self.validity_checker.verify(n) is True, \
                 f"Validity check for {n} failed. Expected: True, actual: False"
 
-    def test_valid_samordningnummer(self):
+    def test_valid_samordningsnummer(self):
         number = "190910799824"
 
         assert self.validity_checker.verify(number) is True, \

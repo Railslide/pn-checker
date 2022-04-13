@@ -1,20 +1,17 @@
-Personnumer Checker
-===================
+Identity Numbers Validity Checker
+=================================
 
-Takes a list of personnumer and prints out the invalid ones.
+Takes one or more space separated identity numbers and prints out whether they are valid or not.
 
 Usage
 -----
 
 ```commandline
-usage: python main.py [-h] N [N ...]
+usage: python main.py N [N ...]
+```
 
-Checks identity number validity
-
-positional arguments:
-  N           A list of identity numbers to be checked
-
-options:
-  -h, --help  show this help message and exit
-
+Running tests
+-------------
+```commandline
+python -m unittest
 ```
