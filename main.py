@@ -4,16 +4,15 @@ import re
 
 
 class PNValidityChecker:
-    def __init__(self):
-        pass # TODO: Remove?
 
     def verify(self, identity_number):
         try:
             self._validate(identity_number)
         except ValueError as e:
-            print(e) # TODO: log instead of printing?
+            print(f"{identity_number} is invalid") # TODO: log instead of printing?
             return False
 
+        print(f"{identity_number} is valid")
         return True
 
     def _validate(self, identity_number):
@@ -29,6 +28,17 @@ class PNValidityChecker:
         # This only work for humans @TODO
         if not self._check_is_valid_date_of_birth(identity_number, digits_only):
             raise ValueError("Invalid date of birth")
+
+    def _calculate_control_digit(self, identity_number):
+        total_sum = 0
+        for index, digit_string in enumerate(identity_number[:-1]):
+            digit = int(digit_string)
+            if index % 2 == 0:
+                digit = 2 * digit
+                if digit > 9:
+                    digit = digit - 9
+            total_sum += digit
+        return (10 - (total_sum % 10)) % 10
 
     def _check_is_valid_date_of_birth(self, identity_number, digits_only):
         # Slicing from the end of the string, so that it works for both 10 and 12 digits numbers
@@ -52,17 +62,9 @@ class PNValidityChecker:
 
         return True
 
-    def _calculate_control_digit(self, identity_number):
-        total_sum = 0
-        for index, digit_string in enumerate(identity_number[:-1]):
-            digit = int(digit_string)
-            if index % 2 == 0:
-                digit = 2 * digit
-                if digit > 9:
-                    digit = digit - 9
-            total_sum += digit
-        return (10 - (total_sum % 10)) % 10
-
+# @TODO: Log invalid numbers
+# @TODO: Handle samordning number
+# @TODO: Handle companies
 
 def main():
     parser = argparse.ArgumentParser(description="Checks identity number validity")
@@ -71,7 +73,7 @@ def main():
         metavar='N',
         type=str,
         nargs='+',
-        help ="A list of identity numbers to be checked"
+        help ="A space separated list of identity numbers to be checked"
     )
     args = parser.parse_args()
     checker = PNValidityChecker()
