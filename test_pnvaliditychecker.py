@@ -67,7 +67,8 @@ class PNValidityCheckerTests(unittest.TestCase):
         invalid_numbers = (
             "201701272394",
             "190302299813",
-            "030229+9813"
+            "030229+9813",
+            "18900118+9811"
         )
         for pn in invalid_numbers:
             assert self.validity_checker.verify(pn) is False, \
