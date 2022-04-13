@@ -8,7 +8,7 @@ class PNValidityChecker:
     def verify(self, identity_number):
         try:
             self._validate(identity_number)
-        except ValueError as e:
+        except ValueError:
             print(f"{identity_number} is invalid") # TODO: log instead of printing?
             return False
 
@@ -25,8 +25,15 @@ class PNValidityChecker:
         if control_digit != self._calculate_control_digit(ten_digits_number):
             raise ValueError("Invalid identity number")
 
-        # This only work for humans @TODO
-        if not self._check_is_valid_date_of_birth(identity_number, digits_only):
+        date_part = digits_only[:-4]
+        number_type = self._identify_number_type(date_part)
+        if number_type == "company":
+            return
+        elif number_type == "samordningnummer":
+            actual_day_of_birth = int(date_part[-2:]) - 60
+            date_part = f"{date_part[:-2]}{actual_day_of_birth}"
+
+        if not self._check_is_valid_date_of_birth(date_part, True):
             raise ValueError("Invalid date of birth")
 
     def _calculate_control_digit(self, identity_number):
@@ -40,31 +47,43 @@ class PNValidityChecker:
             total_sum += digit
         return (10 - (total_sum % 10)) % 10
 
-    def _check_is_valid_date_of_birth(self, identity_number, digits_only):
-        # Slicing from the end of the string, so that it works for both 10 and 12 digits numbers
-        month = int(digits_only[-4:-2])
-        day = int(digits_only[-2:])
-        year = int(digits_only[:-4])
+    def _identify_number_type(self, date_string):
+        # Slicing from the end of the string, so that it works for both YYMMDD and YYYYMMDD
+        month = int(date_string[-4:-2])
+        day = int(date_string[-2:])
 
-        if "+" in identity_number:
-            try:
-                # Picking January 1 as we know for sut that it exists even if it's a leap year.
-                # This is to avoid the corner case of 100+ year person born on February 29
-                dummy_date = datetime.date(year, 1, 1)
-                dummy_date.replace(year=dummy_date-100, month=month, day=day)
-                return True
-            except ValueError:
-                return False
-        try:
-            datetime.date(year=year, month=month, day=day)
-        except ValueError:
-            return False
+        if month >= 20:
+            return "company"
+        if 61 <= day <= 91:
+            return "samordningnummer"
 
-        return True
+        return "personnummer"
+
+    def _check_is_valid_date_of_birth(self, date_string, is_100_plus_short_date=False):
+        raise Exception("Fix me!")
+        # date_part = digits_only[:-4]
+        #
+        #
+        # if "+" in identity_number:
+        #     try:
+        #         # Picking January 1 as we know for sut that it exists even if it's a leap year.
+        #         # This is to avoid the corner case of 100+ year person born on February 29
+        #         import pdb; pdb.set_trace()
+        #         dummy_date = datetime.date(year, 1, 1).strftime("%Y%d%m")
+        #         dummy_date.replace(year=dummy_date.year-100, month=month, day=day)
+        #         return True
+        #     except ValueError:
+        #         return False
+        # try:
+        #     datetime.date(year=year, month=month, day=day)
+        # except ValueError:
+        #     print(year, month, day)
+        #     return False
+        #
+        # return True
 
 # @TODO: Log invalid numbers
-# @TODO: Handle samordning number
-# @TODO: Handle companies
+
 
 def main():
     parser = argparse.ArgumentParser(description="Checks identity number validity")
