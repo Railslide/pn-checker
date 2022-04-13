@@ -2,7 +2,7 @@ import unittest
 from main import PNValidityChecker
 
 
-class SubvenvTests(unittest.TestCase):
+class PNValidityCheckerTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):

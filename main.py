@@ -3,12 +3,17 @@ import datetime
 import re
 
 
+class IdentityNumberValidationError(Exception):
+    pass
+
+
 class PNValidityChecker:
 
     def verify(self, identity_number):
         try:
             self._validate(identity_number)
-        except ValueError:
+        except IdentityNumberValidationError as e:
+            print(e)
             print(f"{identity_number} is invalid") # TODO: log instead of printing?
             return False
 
@@ -23,7 +28,7 @@ class PNValidityChecker:
         ten_digits_number = digits_only[-10:]
         control_digit = int(ten_digits_number[-1])
         if control_digit != self._calculate_control_digit(ten_digits_number):
-            raise ValueError("Invalid identity number")
+            raise IdentityNumberValidationError("Invalid identity number")
 
         date_part = digits_only[:-4]
         number_type = self._identify_number_type(date_part)
@@ -34,7 +39,7 @@ class PNValidityChecker:
             date_part = f"{date_part[:-2]}{actual_day_of_birth}"
 
         if not self._check_is_valid_date_of_birth(date_part, True):
-            raise ValueError("Invalid date of birth")
+            raise IdentityNumberValidationError("Invalid date of birth")
 
     def _calculate_control_digit(self, identity_number):
         total_sum = 0
@@ -60,10 +65,20 @@ class PNValidityChecker:
         return "personnummer"
 
     def _check_is_valid_date_of_birth(self, date_string, is_100_plus_short_date=False):
-        raise Exception("Fix me!")
-        # date_part = digits_only[:-4]
-        #
-        #
+        if len(date_string) == 8:
+            date_fmt = "%Y%m%d"
+        elif len(date_string) == 6:
+            date_fmt = "%y%m%d"
+        else:
+            return False
+        try:
+            datetime.datetime.strptime(date_string, date_fmt)
+        except ValueError:
+            raise IdentityNumberValidationError("Invalid date of birth")
+
+        return True
+        # if is_100_plus_short_date and  date_string.endswith("0229"):
+        #    date_string = f"{date_string[:2]}0101"
         # if "+" in identity_number:
         #     try:
         #         # Picking January 1 as we know for sut that it exists even if it's a leap year.
